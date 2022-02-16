@@ -16,8 +16,8 @@ syntax = "proto3";
 import "aelf/core.proto";
 import "aelf/options.proto";
 
-// import for using the google.protobuf.Empty type.
 import "google/protobuf/empty.proto";
+//import "google/protobuf/wrappers.proto";
 
 // the name of the C# namespace in which the contract code will be,
 // generated code will also be in this namespace.
@@ -38,6 +38,13 @@ service SwapExchangeContract {
   rpc SwapTokensInline(SwapTokensInlineInput) returns(google.protobuf.Empty){} 
   
   //View
+//  rpc Owner(google.protobuf.Empty) returns(aelf.Address){
+//    option (aelf.is_view) = true;
+//  }
+//  
+//  rpc TargetToken(google.protobuf.Empty) returns(){
+//    option (aelf.is_view) = true;
+//  }
 }
 
 

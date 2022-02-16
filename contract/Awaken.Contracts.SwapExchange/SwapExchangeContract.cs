@@ -14,14 +14,7 @@ namespace Awaken.Contracts.SwapExchangeContract
         public override Empty Initialize(InitializeInput input)
         {
             Assert(State.Owner.Value == null, "Contract already Initialized.");
-            if (input.Onwer!=null)
-            {
-                State.Owner.Value = input.Onwer;
-            }
-            else
-            {
-                State.Owner.Value = Context.Sender;
-            }
+            State.Owner.Value = input.Onwer!=null ? input.Onwer : Context.Sender;
 
             State.To.Value = input.To;
             State.TargetToken.Value = input.TargetToken;

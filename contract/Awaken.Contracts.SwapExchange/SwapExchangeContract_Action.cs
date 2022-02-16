@@ -18,25 +18,25 @@ namespace Awaken.Contracts.SwapExchangeContract
     /// Notice that it inherits from the protobuf generated code. 
     /// </summary>
     public partial class SwapExchangeContract
-    {   
+    {
         /**
          * SwapCommonTokens
          */
         public override Empty SwapCommonTokens(SwapTokensInput input)
-        {   
+        {
             OnlyOwner();
-            var tokensInfo  = input.SwapTokenList.TokensInfo;
+            var tokensInfo = input.SwapTokenList.TokensInfo;
             Assert(tokensInfo.Count > 0, "Invalid params.");
             State.CumulativeTokenList.Value = new TokenList
             {
                 TokensInfo = {tokensInfo}
             };
-            
-            Context.SendInline(Context.Self,nameof(SwapTokensInline),new SwapTokensInlineInput
+
+            Context.SendInline(Context.Self, nameof(SwapTokensInline), new SwapTokensInlineInput
             {
-                PathMap = { input.PathMap}
+                PathMap = {input.PathMap}
             });
-            return new Empty( );
+            return new Empty();
         }
 
         /**
@@ -58,8 +58,6 @@ namespace Awaken.Contracts.SwapExchangeContract
                     To = Context.Self
                 });
 
-                
-                
                 Context.SendInline(Context.Self, nameof(RemoveLiquidityInline), new RemoveLiquidityInlineInput
                 {
                     Token = token
@@ -71,7 +69,6 @@ namespace Awaken.Contracts.SwapExchangeContract
                 PathMap = {input.PathMap}
             });
 
-
             return new Empty();
         }
 
@@ -81,21 +78,21 @@ namespace Awaken.Contracts.SwapExchangeContract
         public override Empty RemoveLiquidityInline(RemoveLiquidityInlineInput input)
         {
             OnlySelf();
-            
+
             State.LpTokenContract.Approve.Send(new ApproveInput
             {
                 Spender = State.SwapContract.Value,
                 Amount = input.Token.Amount,
                 Symbol = input.Token.TokenSymbol
             });
-            
+
             var tokens = ExtractTokensFromTokenPair(ExtractTokenPairFromSymbol(input.Token.TokenSymbol));
-            var tokenABalance = State.CommonTokenContract.GetBalance.Call(new GetBalanceInput
+            var tokenABalanceBefore = State.CommonTokenContract.GetBalance.Call(new GetBalanceInput
             {
                 Owner = Context.Self,
                 Symbol = tokens[0]
             }).Balance;
-            var tokenBBalance = State.CommonTokenContract.GetBalance.Call(new GetBalanceInput
+            var tokenBBalanceBefore = State.CommonTokenContract.GetBalance.Call(new GetBalanceInput
             {
                 Owner = Context.Self,
                 Symbol = tokens[1]
@@ -113,7 +110,13 @@ namespace Awaken.Contracts.SwapExchangeContract
                 Deadline = Context.CurrentBlockTime.AddSeconds(3)
             });
 
-
+            Context.SendInline(Context.Self, nameof(CumulativeTokenAmountInline), new CumulativeTokenAmountInlineInput
+            {
+                TokenA = tokens[0],
+                TokenB = tokens[1],
+                TokenABefore = tokenABalanceBefore,
+                TokenBBefore = tokenBBalanceBefore
+            });
             return new Empty();
         }
 
@@ -128,6 +131,7 @@ namespace Awaken.Contracts.SwapExchangeContract
                 Symbol = input.TokenA,
                 Owner = Context.Self
             }).Balance;
+
             var tokenBBalanceAfter = State.CommonTokenContract.GetBalance.Call(new GetBalanceInput
             {
                 Symbol = input.TokenB,
@@ -135,39 +139,37 @@ namespace Awaken.Contracts.SwapExchangeContract
             }).Balance;
             var increaseAmountTokenA = tokenABalanceAfter.Sub(input.TokenABefore);
             var increaseAmountTokenB = tokenBBalanceAfter.Sub(input.TokenBBefore);
-            var tokenAIndex = State.CumulativeTokenList.Value.TokensInfo.ToList()
-                .FindIndex(token => token.TokenSymbol.Equals(input.TokenA));
-            if (tokenAIndex >= 0)
+            var tokenList = State.CumulativeTokenList.Value;
+            var tokenA = tokenList.TokensInfo.FirstOrDefault(token => token.TokenSymbol.Equals(input.TokenA));
+            if (tokenA != null)
             {
-                State.CumulativeTokenList.Value.TokensInfo[tokenAIndex].Amount = State.CumulativeTokenList.Value
-                    .TokensInfo[tokenAIndex].Amount.Add(increaseAmountTokenA);
+                tokenA.Amount = tokenA.Amount.Add(increaseAmountTokenA);
             }
             else
             {
-                State.CumulativeTokenList.Value.TokensInfo.Add(new Token
+                tokenList.TokensInfo.Add(new Token
                 {
                     TokenSymbol = input.TokenA,
                     Amount = increaseAmountTokenA
                 });
             }
 
-            var tokenBIndex = State.CumulativeTokenList.Value.TokensInfo.ToList()
-                .FindIndex(token => token.TokenSymbol.Equals(input.TokenB));
+            var tokenB = tokenList.TokensInfo.FirstOrDefault(token => token.TokenSymbol.Equals(input.TokenB));
 
-            if (tokenBIndex >= 0)
+            if (tokenB != null)
             {
-                State.CumulativeTokenList.Value.TokensInfo[tokenBIndex].Amount = State.CumulativeTokenList.Value
-                    .TokensInfo[tokenBIndex].Amount.Add(increaseAmountTokenB);
+                tokenB.Amount = tokenB.Amount.Add(increaseAmountTokenB);
             }
             else
             {
-                State.CumulativeTokenList.Value.TokensInfo.Add(new Token
+                tokenList.TokensInfo.Add(new Token
                 {
                     TokenSymbol = input.TokenB,
                     Amount = increaseAmountTokenB
                 });
             }
 
+            State.CumulativeTokenList.Value = tokenList;
             return new Empty();
         }
 
@@ -205,14 +207,14 @@ namespace Awaken.Contracts.SwapExchangeContract
                     path.Add(tokens[0]);
                 }
             }
-            
+
             State.CommonTokenContract.Approve.Send(new AElf.Contracts.MultiToken.ApproveInput
             {
                 Spender = State.SwapContract.Value,
                 Amount = token.Amount,
                 Symbol = token.TokenSymbol
-            }); 
-            
+            });
+
             State.SwapContract.SwapExactTokensForTokens.Send(new SwapExactTokensForTokensInput
             {
                 Path = {path},
