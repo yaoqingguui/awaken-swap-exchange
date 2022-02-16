@@ -1,9 +1,9 @@
-using System;
 using System.Linq;
 using AElf.Contracts.MultiToken;
 using AElf.CSharp.Core;
 using AElf.CSharp.Core.Extension;
 using AElf.Sdk.CSharp;
+using AElf.Types;
 using Awaken.Contracts.Swap;
 using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
@@ -18,7 +18,33 @@ namespace Awaken.Contracts.SwapExchangeContract
     /// Notice that it inherits from the protobuf generated code. 
     /// </summary>
     public partial class SwapExchangeContract
-    {
+    {   
+        /**
+         * SetTargetToken
+         */
+        public override Empty SetTargetToken(StringValue input)
+        {   
+            OnlyOwner();
+            var tokenInfo = State.CommonTokenContract.GetTokenInfo.Call(new GetTokenInfoInput
+            {
+                Symbol = input.Value
+            });
+            Assert(tokenInfo!=null&&tokenInfo.Symbol.Equals(input.Value),$"Token {input.Value} not exist.");
+            State.TargetToken.Value = input.Value;
+            return new Empty();
+        }
+
+        /**
+         * SetReceivor
+         */
+        public override Empty SetReceivor(Address input)
+        {   
+            OnlyOwner();
+            Assert(input!=null,"Invalid input.");
+            State.Receivor.Value = input;
+            return new Empty();
+        }
+
         /**
          * SwapCommonTokens
          */
@@ -198,14 +224,7 @@ namespace Awaken.Contracts.SwapExchangeContract
             foreach (var pair in pathPair.Value)
             {
                 var tokens = ExtractTokensFromTokenPair(ExtractTokenPairFromSymbol(pair));
-                if (tokens[0].Equals(path[path.Count - 1]))
-                {
-                    path.Add(tokens[1]);
-                }
-                else
-                {
-                    path.Add(tokens[0]);
-                }
+                path.Add(tokens[0].Equals(path[path.Count - 1]) ? tokens[1] : tokens[0]);
             }
 
             State.CommonTokenContract.Approve.Send(new AElf.Contracts.MultiToken.ApproveInput
@@ -219,7 +238,7 @@ namespace Awaken.Contracts.SwapExchangeContract
             {
                 Path = {path},
                 Channel = "Dividend pool script",
-                To = State.To.Value,
+                To = State.Receivor.Value,
                 AmountIn = token.Amount,
                 AmountOutMin = 0,
                 Deadline = Context.CurrentBlockTime.AddSeconds(3)

@@ -17,7 +17,7 @@ import "aelf/core.proto";
 import "aelf/options.proto";
 
 import "google/protobuf/empty.proto";
-//import "google/protobuf/wrappers.proto";
+import "google/protobuf/wrappers.proto";
 
 // the name of the C# namespace in which the contract code will be,
 // generated code will also be in this namespace.
@@ -31,20 +31,26 @@ service SwapExchangeContract {
   //Action    
   rpc SwapLpTokens(SwapTokensInput) returns(google.protobuf.Empty){}
   rpc SwapCommonTokens(SwapTokensInput) returns(google.protobuf.Empty){}
+  rpc SetReceivor(aelf.Address) returns (google.protobuf.Empty){}
+  rpc SetTargetToken(google.protobuf.StringValue) returns(google.protobuf.Empty){}
 
   // Inline transcation
   rpc RemoveLiquidityInline(RemoveLiquidityInlineInput) returns(google.protobuf.Empty){}
   rpc CumulativeTokenAmountInline(CumulativeTokenAmountInlineInput) returns(google.protobuf.Empty){}
-  rpc SwapTokensInline(SwapTokensInlineInput) returns(google.protobuf.Empty){} 
-  
+  rpc SwapTokensInline(SwapTokensInlineInput) returns(google.protobuf.Empty){}
+
   //View
-//  rpc Owner(google.protobuf.Empty) returns(aelf.Address){
-//    option (aelf.is_view) = true;
-//  }
-//  
-//  rpc TargetToken(google.protobuf.Empty) returns(){
-//    option (aelf.is_view) = true;
-//  }
+  rpc Owner(google.protobuf.Empty) returns(aelf.Address){
+    option (aelf.is_view) = true;
+  }
+
+  rpc TargetToken(google.protobuf.Empty) returns(google.protobuf.StringValue){
+    option (aelf.is_view) = true;
+  }
+
+  rpc Receivor(google.protobuf.Empty) returns(aelf.Address){
+    option (aelf.is_view) = true;
+  }
 }
 
 
@@ -52,25 +58,25 @@ service SwapExchangeContract {
 message SwapTokensInlineInput{
   map<string, Path> path_map = 1;
 }
- 
+
 message CumulativeTokenAmountInlineInput{
   string tokenA = 1;
-  string tokenB=2;
-  int64 tokenABefore =3;
-  int64 tokenBBefore=4;
+  string tokenB = 2;
+  int64 tokenABefore = 3;
+  int64 tokenBBefore = 4;
 }
 
 message InitializeInput{
   aelf.Address Onwer = 1;
   string target_token = 2;
-  aelf.Address to = 3;
+  aelf.Address Receivor = 3;
   aelf.Address swap_contract = 4;
   aelf.Address lp_token_contract = 5;
 }
 
 message RemoveLiquidityInlineInput{
-  Token token =1;
-    
+  Token token = 1;
+
 }
 
 message Path{

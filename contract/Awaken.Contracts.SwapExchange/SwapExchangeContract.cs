@@ -16,7 +16,7 @@ namespace Awaken.Contracts.SwapExchangeContract
             Assert(State.Owner.Value == null, "Contract already Initialized.");
             State.Owner.Value = input.Onwer!=null ? input.Onwer : Context.Sender;
 
-            State.To.Value = input.To;
+            State.Receivor.Value = input.Receivor;
             State.TargetToken.Value = input.TargetToken;
             State.SwapContract.Value = input.SwapContract;
             State.LpTokenContract.Value = input.LpTokenContract;
