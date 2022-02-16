@@ -15,6 +15,7 @@ namespace Awaken.Contracts.SwapExchangeContract
         
         public SingletonState<Address> To { get; set; }
         
-        
+        // Common token symbol and cumulative amount after remove liquity.
+        public SingletonState<TokenList> CumulativeTokenList { get; set; }
     } 
 }

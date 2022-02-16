@@ -1,3 +1,6 @@
+using Awaken.Contracts.Swap;
+using Awaken.Contracts.Token;
+
 namespace Awaken.Contracts.SwapExchangeContract
 {
     /// <summary>
@@ -6,5 +9,14 @@ namespace Awaken.Contracts.SwapExchangeContract
     public partial class SwapExchangeContractState
     {
         // state definitions go here.
+        internal AwakenSwapContractContainer.AwakenSwapContractReferenceState SwapContract { get; set; }
+
+        internal TokenContractContainer.TokenContractReferenceState LpTokenContract { get; set; }
+
+        internal AElf.Contracts.MultiToken.TokenContractContainer.TokenContractReferenceState CommonTokenContract
+        {
+            get;
+            set;
+        }
     }
 }

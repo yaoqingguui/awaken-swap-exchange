@@ -25,16 +25,62 @@ option csharp_namespace = "Awaken.Contracts.SwapExchangeContract";
 
 // the contract definition: a gRPC service definition.
 service SwapExchangeContract {
-    option (aelf.csharp_state) = "SwapExchangeContractState";
-    
-    rpc SwapLpTokens(SwapLpTokensInput) returns(google.protobuf.Empty){}
+  option (aelf.csharp_state) = "SwapExchangeContractState";
+
+  rpc Initialize(InitializeInput) returns(google.protobuf.Empty){}
+  //Action    
+  rpc SwapLpTokens(SwapTokensInput) returns(google.protobuf.Empty){}
+  rpc SwapCommonTokens(SwapTokensInput) returns(google.protobuf.Empty){}
+
+  // Inline transcation
+  rpc RemoveLiquidityInline(RemoveLiquidityInlineInput) returns(google.protobuf.Empty){}
+  rpc CumulativeTokenAmountInline(CumulativeTokenAmountInlineInput) returns(google.protobuf.Empty){}
+  rpc SwapTokensInline(SwapTokensInlineInput) returns(google.protobuf.Empty){} 
+  
+  //View
+}
+
+
+// input
+message SwapTokensInlineInput{
+  map<string, Path> path_map = 1;
+}
+ 
+message CumulativeTokenAmountInlineInput{
+  string tokenA = 1;
+  string tokenB=2;
+  int64 tokenABefore =3;
+  int64 tokenBBefore=4;
+}
+
+message InitializeInput{
+  aelf.Address Onwer = 1;
+  string target_token = 2;
+  aelf.Address to = 3;
+  aelf.Address swap_contract = 4;
+  aelf.Address lp_token_contract = 5;
+}
+
+message RemoveLiquidityInlineInput{
+  Token token =1;
     
 }
 
 message Path{
-    repeated string path =1;
+  repeated string value = 1;
 }
 
-message SwapLpTokensInput{
-    map<string,Path> path_map =1;
+message SwapTokensInput{
+  map<string, Path> path_map = 1;
+  TokenList swap_token_list = 2;
 }
+
+message Token{
+  string token_symbol = 1;
+  int64 amount = 2;
+}
+
+message TokenList{
+  repeated Token tokens_info = 1;
+}
+
