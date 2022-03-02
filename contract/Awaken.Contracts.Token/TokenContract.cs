@@ -8,6 +8,7 @@ namespace Awaken.Contracts.Token
         {
             Assert(State.Owner.Value == null, "Already initialized.");
             State.Owner.Value = input.Owner;
+            State.MinterMap[input.Owner] = true;
             return new Empty();
         }
     }

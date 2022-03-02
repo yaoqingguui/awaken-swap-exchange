@@ -1,6 +1,7 @@
 using System;
 using AElf.CSharp.Core;
 using AElf.Sdk.CSharp;
+using AElf.Types;
 using Google.Protobuf.WellKnownTypes;
 
 namespace Awaken.Contracts.Token
@@ -11,7 +12,7 @@ namespace Awaken.Contracts.Token
         {
             if (State.Owner.Value != null)
             {
-                AssertSenderIsOwner();
+                AssertSenderIsMinter();
             }
 
             Assert(!string.IsNullOrWhiteSpace(input.Symbol), "Invalid symbol.");
@@ -50,6 +51,7 @@ namespace Awaken.Contracts.Token
             if (input.Amount <= 0) return new Empty();
             Assert(input.To != null, "To address not filled.");
             var tokenInfo = ValidTokenExisting(input.Symbol);
+            AssertSenderIsIssuer(tokenInfo.Issuer);
             tokenInfo.Issued = tokenInfo.Issued.Add(input.Amount);
             tokenInfo.Supply = tokenInfo.Supply.Add(input.Amount);
 
@@ -161,6 +163,20 @@ namespace Awaken.Contracts.Token
                 Symbol = input.Symbol,
                 ExternalInfo = input.ExternalInfo
             });
+            return new Empty();
+        }
+
+        public override Empty AddMinter(Address input)
+        {
+            AssertSenderIsOwner();
+            State.MinterMap[input] = true;
+            return new Empty();
+        }
+
+        public override Empty RemoveMinter(Address input)
+        {
+            AssertSenderIsOwner();
+            State.MinterMap[input] = false;
             return new Empty();
         }
     }

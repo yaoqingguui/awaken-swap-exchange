@@ -174,13 +174,9 @@ namespace Awaken.Contracts.Swap
                 Symbol = lpTokenSymbol,
                 Amount = liquidity
             });
-            State.AccountAssetsMap[account] = State.AccountAssetsMap[account] ?? new StringList();
-            var accountAsset = State.AccountAssetsMap[account];
+         
+        
             var pairString = GetTokenPair(tokenA, tokenB);
-            if (!accountAsset.Value.Contains(pairString))
-            {
-                State.AccountAssetsMap[account].Value.Add(pairString);
-            }
 
             Update(balanceA, balanceB, reserves[0], reserves[1], tokenA, tokenB);
             if (feeOn) State.KValueMap[pairAddress] = new BigIntValue(balanceA).Mul(balanceB);
@@ -231,10 +227,6 @@ namespace Awaken.Contracts.Swap
                 Owner = Context.Sender,
                 Symbol = lpTokenSymbol
             }).Amount;
-            if (lpTokenBalance <= 0)
-            {
-                State.AccountAssetsMap[Context.Sender].Value.Remove(GetTokenPair(tokenA, tokenB));
-            }
 
             Update(balanceANew, balanceBNew, reserves[0], reserves[1], tokenA, tokenB);
             if (feeOn) State.KValueMap[pairAddress] = new BigIntValue(balanceANew).Mul(balanceBNew);

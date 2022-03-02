@@ -83,5 +83,15 @@ namespace Awaken.Contracts.Token
         {
             Assert(Context.Sender == State.Owner.Value, "No permission.");
         }
+        
+        private void AssertSenderIsMinter()
+        {
+            Assert( State.MinterMap[Context.Sender], "No permission.");
+        }
+        
+        private void AssertSenderIsIssuer(Address issuer)
+        {
+            Assert( Context.Sender == issuer , "No permission.");
+        }
     }
 }

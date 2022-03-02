@@ -33,12 +33,7 @@ namespace Awaken.Contracts.Swap
 
             return results;
         }
-
-        public override StringList GetAccountAssets(Empty input)
-        {
-            var pairList = State.AccountAssetsMap[Context.Sender];
-            return pairList;
-        }
+        
 
         public override GetTotalSupplyOutput GetTotalSupply(StringList input)
         {

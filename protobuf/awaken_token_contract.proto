@@ -37,7 +37,10 @@ service TokenContract {
     }
     rpc ResetExternalInfo (ResetExternalInfoInput) returns (google.protobuf.Empty){
     }
-
+    rpc AddMinter(aelf.Address) returns (google.protobuf.Empty) {
+    }
+    rpc RemoveMinter(aelf.Address) returns (google.protobuf.Empty) {
+    }
     // Views
     rpc GetTokenInfo (GetTokenInfoInput) returns (TokenInfo) {
         option (aelf.is_view) = true;

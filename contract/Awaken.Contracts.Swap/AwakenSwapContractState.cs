@@ -30,11 +30,7 @@ namespace Awaken.Contracts.Swap
         /// Pair Virtual Address -> Latest K
         /// </summary>
         public MappedState<Address, BigIntValue> KValueMap { get; set; }
-
-        /// <summary>
-        /// User Address -> Pair List of this User
-        /// </summary>
-        public MappedState<Address, StringList> AccountAssetsMap { get; set; }
+        
 
         public SingletonState<long> FeeRate { get; set; }
 

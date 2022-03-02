@@ -41,7 +41,7 @@ namespace Awaken.Contracts.Swap
             State.LPTokenContract.Create.Send(new Token.CreateInput
             {
                 Symbol = GetTokenPairSymbol(tokenPair[0], tokenPair[1]),
-                Decimals = 0,
+                Decimals = 8,
                 TokenName = $"Awaken {GetTokenPair(tokenPair[0], tokenPair[1])} LP Token",
                 Issuer = Context.Self,
                 IsBurnable = true,

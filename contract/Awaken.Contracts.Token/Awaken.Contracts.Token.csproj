@@ -27,9 +27,4 @@
             <Link>Protobuf\Proto\transaction_fee.proto</Link>
         </ContractBase>
     </ItemGroup>
-    <ItemGroup>
-      <Compile Update="TokenContract_ACS1.cs">
-        <DependentUpon>TokenContract.cs</DependentUpon>
-      </Compile>
-    </ItemGroup>
 </Project>

@@ -59,16 +59,6 @@ namespace Awaken.Contracts.Swap
                 Symbol = lpTokenSymbol
             }).Amount;
             DoTransferLPTokens(Context.Sender, input.To, lpTokenSymbol, input.Amount);
-            State.AccountAssetsMap[input.To] = State.AccountAssetsMap[input.To] ?? new StringList();
-            if (!State.AccountAssetsMap[input.To].Value.Contains(input.SymbolPair))
-            {
-                State.AccountAssetsMap[input.To].Value.Add(input.SymbolPair);
-            }
-
-            if (liquidity <= input.Amount)
-            {
-                State.AccountAssetsMap[Context.Sender].Value.Remove(input.SymbolPair);
-            }
 
             return new Empty();
         }
